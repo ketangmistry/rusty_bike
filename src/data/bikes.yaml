@@ -1,0 +1,15 @@
+bikes:
+  - cross_duke:
+      make: cross
+      model: model
+      problems:
+        - component: bottom bracket
+          description: missing ball bearings
+        - component: bottom bracket
+          description: no lubrication
+  - unknown_unknown:
+      make: unknown
+      model: unknown
+      problems:
+        - component: wheel
+          description: bent spoke
