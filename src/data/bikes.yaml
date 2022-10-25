@@ -1,5 +1,5 @@
 bikes:
-  - cross_duke:
+  - bike:
       make: cross
       model: model
       problems:
@@ -7,7 +7,7 @@ bikes:
           description: missing ball bearings
         - component: bottom bracket
           description: no lubrication
-  - unknown_unknown:
+  - bike:
       make: unknown
       model: unknown
       problems:
