@@ -1,25 +1,51 @@
-use std::fs;
-pub struct Bike {
-    pub make: String,
-    pub model: String
+use std::{fs::File, path::PathBuf};
+
+use serde::{Deserialize, Serialize};
+use serde_yaml;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Bikes {
+    pub bikes: Vec<Bike>
 }
 
-pub fn read_file_as_string() -> Result<String, std::io::Error> {
-    let file_content = fs::read_to_string("bikes.yaml");
-    file_content
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Bike {
+    bike: BikeData
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+struct BikeData {
+    manufacturer: String,
+    model: String,
+    year: i16,
+    month: i8,
+    problems: Vec<Problem>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Problem {
+    component: String,
+    description: String,
+    resolution: String
+}
+
+pub fn get_bikes() -> Bikes{
+    let yaml_file_path = PathBuf::from("./src/data/bikes.yaml");
+    let yaml_file = File::open(yaml_file_path).expect("the file bikes.yaml could not be found!");
+    let bike_list: Bikes = serde_yaml::from_reader(yaml_file).expect("Could not read values.");
+    return bike_list;
+}
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn check_file_opens() {
-        match read_file_as_string() {
-            Ok(_) => assert!(true, "bikes file has been opened."),
-            Err(_) => assert!(true, "bikes file could not be opened.")
-        }
-        
+    fn test_get_bikes() {
+        let bike_list = get_bikes();
+        assert!(bike_list.bikes.len() > 0);
+        assert!(bike_list.bikes[0].bike.month > 0);
     }
 
 }

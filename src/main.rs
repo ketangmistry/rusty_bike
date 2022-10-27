@@ -1,8 +1,8 @@
 mod data;
-use crate::data::bikes::Bike;
+
+use data::bikes;
 
 fn main() {
-    println!("Rusty bike!");
-    let bike = Bike {make: "e".to_string(), model: 'f'.to_string()};
-    println!("{}", bike.make);
+    let bike_list = bikes::get_bikes();
+    println!("There are {} bikes in the data file.", bike_list.bikes.len());
 }
