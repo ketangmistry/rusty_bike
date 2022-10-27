@@ -1,0 +1,25 @@
+bikes:
+  - bike:
+      manufacturer: cross
+      model: model
+      year: 2022
+      month: 9
+      problems:
+        - component: bottom bracket
+          description: missing ball bearings
+          resolution: replaced ball bearing
+        - component: bottom bracket
+          description: no lubrication
+          resolution: applied lubrication
+  - bike:
+      manufacturer: univega
+      model: rover 304
+      year: 2022
+      month: 10
+      problems:
+        - component: wheel
+          description: broken spoke
+          resolution: replace broken spoke
+        - component: wheel
+          description: ripped inner tube
+          resolution: replaced inner tube
