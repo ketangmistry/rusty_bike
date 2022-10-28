@@ -5,8 +5,10 @@ use rocket::fs::{FileServer, relative};
 use rocket::response::content::RawHtml;
 
 mod data;
-
 use data::bikes;
+
+mod utils;
+use utils::*;
 
 #[get["/data"]]
 fn get_data() -> RawHtml<String> {
