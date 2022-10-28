@@ -8,8 +8,8 @@ mod data;
 
 use data::bikes;
 
-#[get["/"]]
-fn index() -> RawHtml<String> {
+#[get["/data"]]
+fn get_data() -> RawHtml<String> {
     let bike_list = bikes::get_bikes();
     let mut response = String::new();
     response.push_str("There are ");
@@ -21,6 +21,6 @@ fn index() -> RawHtml<String> {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
-        .mount("/favicon.ico", FileServer::from(relative!("./src/static")))
+        .mount("/", routes![get_data])
+        .mount("/", FileServer::from(relative!("./src/static")))
 }
