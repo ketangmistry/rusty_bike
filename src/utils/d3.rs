@@ -1,45 +1,73 @@
+use serde::Serialize;
+
 use crate::bikes::*;
 
-#[derive(Default)]
-struct Parent {
+#[derive(Default, Serialize)]
+pub struct Root {
     name: String,
-    children: Vec<Children>
+    children: Vec<Parent>,
 }
 
-impl Parent {
-    fn set_empty_defaults(&mut self, name: String) {
-        self.name = name;
-        self.children = Vec::new();
-    }
-}
-
-struct Children {
+#[derive(Default, Serialize)]
+pub struct Parent {
     name: String,
-    children: Vec<Child>
+    children: Vec<Child>,
 }
 
+#[derive(Default, Serialize)]
 struct Child {
     name: String,
-    size: i16
+    children: Vec<ChildData>,
 }
 
-fn get_json_for_tree(_bike_list: Bikes) -> Parent {
-    let mut parent = Parent {..Default::default()};
-    parent.set_empty_defaults(String::from("rusty_bikes"));
+#[derive(Default, Serialize)]
+struct ChildData {
+    name: String,
+    size: i16,
+}
 
-    // if bike_list.bikes.len() > 0 {
-    //     for item in bike_list.bikes {
-            
-    //         let mut child = Child {
-    //             name: item.bike.manufacturer,
-    //             size: 1234
-    //         };
+pub fn get_object_for_d3_tree(bike_list: &Bikes) -> Root {
+    // the root name will be fixed
+    let mut root = Root {
+        ..Default::default()
+    };
+    root.name = String::from("rusty_bikes");
 
-    //         parent.children.push(child)
-    //     }
-    // }
+    if !bike_list.bikes.is_empty() {
+        for x in &bike_list.bikes {
+            if !x.bike.problems.is_empty() {
+                for y in &x.bike.problems {
+                    let mut parent = Parent {
+                        ..Default::default()
+                    };
 
-    parent
+                    // set the parent name as component
+                    parent.name = y.component.clone();
+
+                    // add a child to parent containing the manufacturer
+                    let mut child = Child {
+                        ..Default::default()
+                    };
+                    child.name = x.bike.manufacturer.clone();
+
+                    // now add a child to child, or grandchild with description
+                    let mut child_data = ChildData {
+                        ..Default::default()
+                    };
+                    child_data.name = y.description.clone();
+                    child_data.size = 1234;
+
+                    // set the relationships
+                    child.children.push(child_data);
+                    parent.children.push(child);
+
+                    root.children.push(parent);
+                }
+            }
+        }
+    }
+
+    root
 }
 
 #[cfg(test)]
@@ -48,12 +76,17 @@ mod tests {
 
     #[test]
     fn test_get_json_for_tree() {
-
         // bulid test data structure
-        let problem = Problem {
-            component: String::from("component"),
-            description: String::from("description"),
-            resolution: String::from("resolution")
+        let problem1 = Problem {
+            component: String::from("problem1_component"),
+            description: String::from("problem1_description"),
+            resolution: String::from("problem1_resolution"),
+        };
+
+        let problem2 = Problem {
+            component: String::from("problem2_component"),
+            description: String::from("problem2_description"),
+            resolution: String::from("problem2_resolution"),
         };
 
         let bike_data = BikeData {
@@ -61,18 +94,14 @@ mod tests {
             model: String::from("model"),
             year: 2022,
             month: 01,
-            problems: vec![problem]
+            problems: vec![problem1, problem2],
         };
 
-        let bike = Bike {
-            bike: bike_data
-        };
+        let bike = Bike { bike: bike_data };
 
-        let bikes_list = Bikes {
-            bikes: vec![bike]
-        };
+        let bikes_list = Bikes { bikes: vec![bike] };
 
-        let parent = get_json_for_tree(bikes_list);
+        let parent = get_object_for_d3_tree(&bikes_list);
         assert!(parent.name == "rusty_bikes");
     }
 }

@@ -1,23 +1,21 @@
 #[macro_use]
 extern crate rocket;
 
-use rocket::fs::{FileServer, relative};
-use rocket::response::content::RawHtml;
+use rocket::fs::{relative, FileServer};
+use rocket::response::content::RawJson;
 
 mod data;
 use data::bikes;
 
 mod utils;
-use utils::*;
+use utils::d3;
 
 #[get["/data"]]
-fn get_data() -> RawHtml<String> {
+fn get_data() -> RawJson<String> {
     let bike_list = bikes::get_bikes();
-    let mut response = String::new();
-    response.push_str("There are ");
-    response.push_str(&bike_list.bikes.len().to_string());
-    response.push_str(" bikes in the data file.");
-    RawHtml(response)
+    let d3_object = d3::get_object_for_d3_tree(&bike_list);
+    let d3_json_string = serde_json::to_string_pretty(&d3_object).unwrap();
+    RawJson(d3_json_string)
 }
 
 #[launch]
