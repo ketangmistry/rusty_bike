@@ -8,10 +8,22 @@ pub struct Root {
     children: Vec<Parent>,
 }
 
+impl Root {
+    fn get_problem_component_by_name(&mut self, name: &str) -> Option<&mut Parent> {
+        self.children.iter_mut().find(|p| p.name == name)
+    }
+}
+
 #[derive(Default, Serialize)]
 pub struct Parent {
     name: String,
     children: Vec<Child>,
+}
+
+impl Parent {
+    fn get_manufacturer_by_name(&mut self, name: &str) -> Option<&mut Child> {
+        self.children.iter_mut().find(|c| c.name == name)
+    }
 }
 
 #[derive(Default, Serialize)]
@@ -26,22 +38,53 @@ struct ChildData {
     size: i16,
 }
 
-pub fn get_object_for_d3_tree(bike_list: &Bikes) -> Root {
+pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
     // the root name will be fixed
     let mut root = Root {
         ..Default::default()
     };
     root.name = String::from("rusty_bikes");
 
-    if !bike_list.bikes.is_empty() {
-        for x in &bike_list.bikes {
+    if !bikes.bikes.is_empty() {
+        for x in &bikes.bikes {
             if !x.bike.problems.is_empty() {
                 for y in &x.bike.problems {
+                    
                     let mut parent = Parent {
                         ..Default::default()
                     };
 
                     // set the parent name as component
+                    match root.get_problem_component_by_name(&y.component) {
+                        Some(p) => 
+                            match p.get_manufacturer_by_name(&x.bike.manufacturer) {
+                                Some(c) => {
+                                    // add to existing manufacturer
+                                    let mut d = ChildData {
+                                        ..Default::default()
+                                    };
+                                    d.name = y.description.clone();
+                                    d.size = 1234;
+                                    c.children.push(d)
+                                }
+                                None => {
+                                    // create new manufacturer
+                                    let mut c = Child {
+                                        ..Default::default()
+                                    };
+                                    c.name = x.bike.manufacturer.clone();
+
+                                    let mut d = ChildData {
+                                        ..Default::default()
+                                    };
+                                    d.name = y.description.clone();
+                                    d.size = 1234;
+                                    c.children.push(d)
+
+                                }
+                            },
+                        None => {}
+                    }
                     parent.name = y.component.clone();
 
                     // add a child to parent containing the manufacturer
@@ -74,9 +117,7 @@ pub fn get_object_for_d3_tree(bike_list: &Bikes) -> Root {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_get_json_for_tree() {
-        // bulid test data structure
+    fn get_test_data() -> Bikes {
         let problem1 = Problem {
             component: String::from("problem1_component"),
             description: String::from("problem1_description"),
@@ -99,9 +140,41 @@ mod tests {
 
         let bike = Bike { bike: bike_data };
 
-        let bikes_list = Bikes { bikes: vec![bike] };
+        let bikes = Bikes { bikes: vec![bike] };
 
-        let parent = get_object_for_d3_tree(&bikes_list);
-        assert!(parent.name == "rusty_bikes");
+        bikes
+
     }
+
+    #[test]
+    fn test_get_d3_root_from_bikes() {
+        let bikes = get_test_data();
+        let root = get_d3_root_from_bikes(&bikes);
+        assert!(root.name == "rusty_bikes");
+    }
+
+    #[test]
+    fn test_get_problem_component_by_name() {
+        let bikes = get_test_data();
+        let mut root = get_d3_root_from_bikes(&bikes);
+        match root.get_problem_component_by_name("problem1_component") {
+            Some(_parent) => assert!(true),
+            None => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_get_problem_and_manufacturer_by_name() {
+        let bikes = get_test_data();
+        let mut root = get_d3_root_from_bikes(&bikes);
+        match root.get_problem_component_by_name("problem1_component") {
+            Some(parent) => 
+                match parent.get_manufacturer_by_name("manufacturer") {
+                    Some(_child) => assert!(true),
+                    None => assert!(false)
+                }
+            None => assert!(false),
+        }
+    }
+
 }

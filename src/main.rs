@@ -12,8 +12,8 @@ use utils::d3;
 
 #[get["/data"]]
 fn get_data() -> RawJson<String> {
-    let bike_list = bikes::get_bikes();
-    let d3_object = d3::get_object_for_d3_tree(&bike_list);
+    let bikes = bikes::get_bikes();
+    let d3_object = d3::get_d3_root_from_bikes(&bikes);
     let d3_json_string = serde_json::to_string_pretty(&d3_object).unwrap();
     RawJson(d3_json_string)
 }
