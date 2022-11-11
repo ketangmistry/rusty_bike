@@ -7,19 +7,25 @@ bikes:
       problems:
         - component: bottom bracket
           description: missing ball bearings
-          resolution: replaced ball bearing
+          resolved: true
         - component: bottom bracket
           description: no lubrication
-          resolution: applied lubrication
+          resolved: true
+        - component: rear derailleur
+          description: snapped off
+          resolved: false 
   - bike:
       manufacturer: univega
       model: rover 304
       year: 2022
       month: 10
       problems:
-        - component: wheel
+        - component: wheels
           description: broken spoke
-          resolution: replace broken spoke
-        - component: wheel
+          resolved: true
+        - component: wheels
           description: ripped inner tube
-          resolution: replaced inner tube
+          resolved: true
+        - component: brakes
+          description: worn out pads
+          resolved: true      

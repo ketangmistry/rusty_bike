@@ -26,7 +26,7 @@ pub struct BikeData {
 pub struct Problem {
     pub component: String,
     pub description: String,
-    pub resolution: String,
+    pub resolved: bool,
 }
 
 pub fn get_bikes() -> Bikes {

@@ -414,7 +414,12 @@ treeJSON = d3.json("data", function(error, treeData) {
             .attr('class', 'nodeCircle')
             .attr("r", 0)
             .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
+                var fill = "green";
+                if(d.resolved == false) {
+                    fill = "red"
+                }
+                return fill;
+                // return d._children ? "lightsteelblue" : "#fff";
             });
 
         nodeEnter.append("text")
@@ -474,6 +479,17 @@ treeJSON = d3.json("data", function(error, treeData) {
         // Fade the text in
         nodeUpdate.select("text")
             .style("fill-opacity", 1);
+
+        // add some color
+        nodeUpdate.select("circle")
+            .attr("r", 4)
+            .style("fill", function(d) {
+                var fill = "green";
+                if(d.resolved == false) {
+                    fill = "red"
+                }
+                return fill;
+        });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()

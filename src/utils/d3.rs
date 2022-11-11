@@ -36,6 +36,7 @@ struct Child {
 struct ChildData {
     name: String,
     size: i16,
+    resolved: bool,
 }
 
 pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
@@ -46,65 +47,70 @@ pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
     root.name = String::from("rusty_bikes");
 
     if !bikes.bikes.is_empty() {
-        for x in &bikes.bikes {
-            if !x.bike.problems.is_empty() {
-                for y in &x.bike.problems {
-                    
-                    let mut parent = Parent {
-                        ..Default::default()
-                    };
-
+        for bike in &bikes.bikes {
+            if !bike.bike.problems.is_empty() {
+                for problem in &bike.bike.problems {
                     // set the parent name as component
-                    match root.get_problem_component_by_name(&y.component) {
-                        Some(p) => 
-                            match p.get_manufacturer_by_name(&x.bike.manufacturer) {
-                                Some(c) => {
+                    match root.get_problem_component_by_name(&problem.component) {
+                        Some(parent) => {
+                            match parent.get_manufacturer_by_name(&bike.bike.manufacturer) {
+                                Some(child) => {
                                     // add to existing manufacturer
-                                    let mut d = ChildData {
+                                    let mut child_data = ChildData {
                                         ..Default::default()
                                     };
-                                    d.name = y.description.clone();
-                                    d.size = 1234;
-                                    c.children.push(d)
+                                    child_data.name = problem.description.clone();
+                                    child_data.size = 1234;
+                                    child_data.resolved = problem.resolved;
+
+                                    child.children.push(child_data);
                                 }
                                 None => {
                                     // create new manufacturer
-                                    let mut c = Child {
+                                    let mut child = Child {
                                         ..Default::default()
                                     };
-                                    c.name = x.bike.manufacturer.clone();
+                                    child.name = bike.bike.manufacturer.clone();
 
-                                    let mut d = ChildData {
+                                    let mut child_data = ChildData {
                                         ..Default::default()
                                     };
-                                    d.name = y.description.clone();
-                                    d.size = 1234;
-                                    c.children.push(d)
+                                    child_data.name = problem.description.clone();
+                                    child_data.size = 1234;
+                                    child_data.resolved = problem.resolved;
 
+                                    child.children.push(child_data);
+                                    parent.children.push(child);
                                 }
-                            },
-                        None => {}
+                            }
+                        }
+                        None => {
+                            let mut parent = Parent {
+                                ..Default::default()
+                            };
+                            parent.name = problem.component.clone();
+
+                            // add a child to parent containing the manufacturer
+                            let mut child = Child {
+                                ..Default::default()
+                            };
+                            child.name = bike.bike.manufacturer.clone();
+
+                            // now add a child to child, or grandchild with description
+                            let mut child_data = ChildData {
+                                ..Default::default()
+                            };
+                            child_data.name = problem.description.clone();
+                            child_data.size = 1234;
+                            child_data.resolved = problem.resolved;
+
+                            // set the relationships
+                            child.children.push(child_data);
+                            parent.children.push(child);
+
+                            root.children.push(parent);
+                        }
                     }
-                    parent.name = y.component.clone();
-
-                    // add a child to parent containing the manufacturer
-                    let mut child = Child {
-                        ..Default::default()
-                    };
-                    child.name = x.bike.manufacturer.clone();
-
-                    // now add a child to child, or grandchild with description
-                    let mut child_data = ChildData {
-                        ..Default::default()
-                    };
-                    child_data.name = y.description.clone();
-                    child_data.size = 1234;
-
-                    // set the relationships
-                    child.children.push(child_data);
-                    parent.children.push(child);
-
-                    root.children.push(parent);
                 }
             }
         }
@@ -121,13 +127,13 @@ mod tests {
         let problem1 = Problem {
             component: String::from("problem1_component"),
             description: String::from("problem1_description"),
-            resolution: String::from("problem1_resolution"),
+            resolved: true,
         };
 
         let problem2 = Problem {
             component: String::from("problem2_component"),
             description: String::from("problem2_description"),
-            resolution: String::from("problem2_resolution"),
+            resolved: false,
         };
 
         let bike_data = BikeData {
@@ -143,7 +149,6 @@ mod tests {
         let bikes = Bikes { bikes: vec![bike] };
 
         bikes
-
     }
 
     #[test]
@@ -168,13 +173,11 @@ mod tests {
         let bikes = get_test_data();
         let mut root = get_d3_root_from_bikes(&bikes);
         match root.get_problem_component_by_name("problem1_component") {
-            Some(parent) => 
-                match parent.get_manufacturer_by_name("manufacturer") {
-                    Some(_child) => assert!(true),
-                    None => assert!(false)
-                }
+            Some(parent) => match parent.get_manufacturer_by_name("manufacturer") {
+                Some(_child) => assert!(true),
+                None => assert!(false),
+            },
             None => assert!(false),
         }
     }
-
 }
