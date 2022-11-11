@@ -10,23 +10,23 @@ pub struct Bikes {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Bike {
-    bike: BikeData,
+    pub bike: BikeData,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct BikeData {
-    manufacturer: String,
-    model: String,
-    year: i16,
-    month: i8,
-    problems: Vec<Problem>,
+pub struct BikeData {
+    pub manufacturer: String,
+    pub model: String,
+    pub year: i16,
+    pub month: i8,
+    pub problems: Vec<Problem>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Problem {
-    component: String,
-    description: String,
-    resolution: String,
+pub struct Problem {
+    pub component: String,
+    pub description: String,
+    pub resolved: bool,
 }
 
 pub fn get_bikes() -> Bikes {
