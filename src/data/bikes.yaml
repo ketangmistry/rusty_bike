@@ -1,7 +1,7 @@
 bikes:
   - bike:
       manufacturer: cross
-      model: model
+      model: duke
       year: 2022
       month: 9
       problems:
