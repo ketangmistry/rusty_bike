@@ -1,7 +1,7 @@
 bikes:
   - bike:
       manufacturer: cross
-      model: model
+      model: duke
       year: 2022
       month: 9
       problems:
@@ -13,7 +13,13 @@ bikes:
           resolved: true
         - component: rear derailleur
           description: snapped off
-          resolved: false 
+          resolved: false
+        - component: rear derailleur
+          description: hanger misaligned
+          resolved: false
+        - component: front brake
+          description: disc rub
+          resolved: false   
   - bike:
       manufacturer: univega
       model: rover 304

@@ -1,3 +1,5 @@
+use opentelemetry::{global, trace::TraceContextExt, trace::Tracer, Key};
+
 use serde::Serialize;
 
 use crate::bikes::*;
@@ -40,81 +42,94 @@ struct ChildData {
 }
 
 pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
+    let tracer = global::tracer("rusty_bike_data_service");
+
     // the root name will be fixed
     let mut root = Root {
         ..Default::default()
     };
     root.name = String::from("rusty_bikes");
 
-    if !bikes.bikes.is_empty() {
-        for bike in &bikes.bikes {
-            if !bike.bike.problems.is_empty() {
-                for problem in &bike.bike.problems {
-                    // set the parent name as component
-                    match root.get_problem_component_by_name(&problem.component) {
-                        Some(parent) => {
-                            match parent.get_manufacturer_by_name(&bike.bike.manufacturer) {
-                                Some(child) => {
-                                    // add to existing manufacturer
-                                    let mut child_data = ChildData {
-                                        ..Default::default()
-                                    };
-                                    child_data.name = problem.description.clone();
-                                    child_data.size = 1234;
-                                    child_data.resolved = problem.resolved;
+    tracer.in_span("get_d3_root_from_bikes", |cx| {
+        let span = cx.span();
 
-                                    child.children.push(child_data);
-                                }
-                                None => {
-                                    // create new manufacturer
-                                    let mut child = Child {
-                                        ..Default::default()
-                                    };
-                                    child.name = bike.bike.manufacturer.clone();
+        if !bikes.bikes.is_empty() {
+            for bike in &bikes.bikes {
+                if !bike.bike.problems.is_empty() {
+                    for problem in &bike.bike.problems {
+                        // set the parent name as component
+                        match root.get_problem_component_by_name(&problem.component) {
+                            Some(parent) => {
+                                match parent.get_manufacturer_by_name(&bike.bike.manufacturer) {
+                                    Some(child) => {
+                                        // add to existing manufacturer
+                                        let mut child_data = ChildData {
+                                            ..Default::default()
+                                        };
+                                        child_data.name = problem.description.clone();
+                                        child_data.size = 1234;
+                                        child_data.resolved = problem.resolved;
 
-                                    let mut child_data = ChildData {
-                                        ..Default::default()
-                                    };
-                                    child_data.name = problem.description.clone();
-                                    child_data.size = 1234;
-                                    child_data.resolved = problem.resolved;
+                                        child.children.push(child_data);
+                                    }
+                                    None => {
+                                        // create new manufacturer
+                                        let mut child = Child {
+                                            ..Default::default()
+                                        };
+                                        child.name = bike.bike.manufacturer.clone();
 
-                                    child.children.push(child_data);
-                                    parent.children.push(child);
+                                        let event1_text =
+                                            String::from("adding new manufacturer") + &child.name;
+                                        span.add_event(
+                                            "event1",
+                                            vec![Key::new("phase1").string(event1_text)],
+                                        );
+
+                                        let mut child_data = ChildData {
+                                            ..Default::default()
+                                        };
+                                        child_data.name = problem.description.clone();
+                                        child_data.size = 1234;
+                                        child_data.resolved = problem.resolved;
+
+                                        child.children.push(child_data);
+                                        parent.children.push(child);
+                                    }
                                 }
                             }
-                        }
-                        None => {
-                            let mut parent = Parent {
-                                ..Default::default()
-                            };
-                            parent.name = problem.component.clone();
+                            None => {
+                                let mut parent = Parent {
+                                    ..Default::default()
+                                };
+                                parent.name = problem.component.clone();
 
-                            // add a child to parent containing the manufacturer
-                            let mut child = Child {
-                                ..Default::default()
-                            };
-                            child.name = bike.bike.manufacturer.clone();
+                                // add a child to parent containing the manufacturer
+                                let mut child = Child {
+                                    ..Default::default()
+                                };
+                                child.name = bike.bike.manufacturer.clone();
 
-                            // now add a child to child, or grandchild with description
-                            let mut child_data = ChildData {
-                                ..Default::default()
-                            };
-                            child_data.name = problem.description.clone();
-                            child_data.size = 1234;
-                            child_data.resolved = problem.resolved;
+                                // now add a child to child, or grandchild with description
+                                let mut child_data = ChildData {
+                                    ..Default::default()
+                                };
+                                child_data.name = problem.description.clone();
+                                child_data.size = 1234;
+                                child_data.resolved = problem.resolved;
 
-                            // set the relationships
-                            child.children.push(child_data);
-                            parent.children.push(child);
+                                // set the relationships
+                                child.children.push(child_data);
+                                parent.children.push(child);
 
-                            root.children.push(parent);
+                                root.children.push(parent);
+                            }
                         }
                     }
                 }
             }
         }
-    }
+    });
 
     root
 }
