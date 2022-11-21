@@ -13,6 +13,7 @@ use data::d3;
 mod internals;
 use internals::logging;
 use internals::tracing;
+use rocket_prometheus::PrometheusMetrics;
 
 #[get("/data")]
 fn get_data() -> RawJson<String> {
@@ -59,7 +60,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         Err(error) => println!("could not configiure logging, because of {}", error),
     }
 
+    let prometheus = PrometheusMetrics::new();
+    
     let _rocket = rocket::build()
+        .attach(prometheus.clone()).mount("/metrics", prometheus)
         .mount("/", routes![get_data])
         .mount("/", FileServer::from(relative!("./src/static")))
         .launch()
