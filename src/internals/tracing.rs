@@ -1,7 +1,5 @@
 use opentelemetry::sdk::Resource;
-use opentelemetry::{
-    sdk::trace as sdktrace, trace::TraceError
-};
+use opentelemetry::{sdk::trace as sdktrace, trace::TraceError};
 
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_semantic_conventions as semcov;

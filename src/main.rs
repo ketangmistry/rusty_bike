@@ -55,8 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         Ok(config) => {
             println!("successfully configured logging");
             log4rs::init_config(config)?;
-        },
-        Err(error) => println!("could not configiure logging, because of {}", error)
+        }
+        Err(error) => println!("could not configiure logging, because of {}", error),
     }
 
     let _rocket = rocket::build()
