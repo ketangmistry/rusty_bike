@@ -1,32 +1,18 @@
 #[macro_use]
 extern crate rocket;
 
-use opentelemetry::Key;
 use rocket::fs::{relative, FileServer};
 use rocket::response::content::RawJson;
 
-use opentelemetry::sdk::Resource;
-use opentelemetry::{
-    global, sdk::trace as sdktrace, trace::TraceContextExt, trace::TraceError, trace::Tracer,
-};
-use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_semantic_conventions as semcov;
+use opentelemetry::{global, trace::TraceContextExt, trace::Tracer, Key};
 
 mod data;
 use data::bikes;
+use data::d3;
 
-mod utils;
-use utils::d3;
-
-fn init_tracer() -> Result<sdktrace::Tracer, TraceError> {
-    let resource = Resource::new(vec![semcov::resource::SERVICE_NAME.string("rusty_bike")]);
-
-    opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_exporter(opentelemetry_otlp::new_exporter().tonic().with_env())
-        .with_trace_config(sdktrace::config().with_resource(resource))
-        .install_simple()
-}
+mod internals;
+use internals::logging;
+use internals::tracing;
 
 #[get("/data")]
 fn get_data() -> RawJson<String> {
@@ -35,6 +21,8 @@ fn get_data() -> RawJson<String> {
     let mut d3_json_string = String::new();
     tracer.in_span("get_data", |cx| {
         let span = cx.span();
+
+        log::info!("traceID={}", span.span_context().trace_id());
 
         span.add_event(
             "event1",
@@ -61,7 +49,15 @@ fn get_data() -> RawJson<String> {
 
 #[rocket::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
-    let _tracer = init_tracer()?;
+    let _tracer = tracing::init_tracer()?;
+
+    match logging::init_logger() {
+        Ok(config) => {
+            println!("successfully configured logging");
+            log4rs::init_config(config)?;
+        }
+        Err(error) => println!("could not configiure logging, because of {}", error),
+    }
 
     let _rocket = rocket::build()
         .mount("/", routes![get_data])

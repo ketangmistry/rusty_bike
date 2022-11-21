@@ -30,7 +30,7 @@ pub struct Problem {
 }
 
 pub fn get_bikes() -> Bikes {
-    let yaml_file_path = PathBuf::from("./src/data/bikes.yaml");
+    let yaml_file_path = PathBuf::from("./src/feeds/bikes.yaml");
     let yaml_file = File::open(yaml_file_path).expect("the file bikes.yaml could not be found!");
     let bike_list: Bikes = serde_yaml::from_reader(yaml_file).expect("Could not read values.");
     bike_list
