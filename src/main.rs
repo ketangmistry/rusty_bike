@@ -4,6 +4,12 @@ extern crate rocket;
 use rocket::fs::{relative, FileServer};
 use rocket::response::content::RawJson;
 
+use once_cell::sync::Lazy;
+use rocket_prometheus::{
+    prometheus::{opts, IntGaugeVec},
+    PrometheusMetrics,
+};
+
 use opentelemetry::{global, trace::TraceContextExt, trace::Tracer, Key};
 
 mod data;
@@ -13,6 +19,14 @@ use data::d3;
 mod internals;
 use internals::logging;
 use internals::tracing;
+
+static BIKE_GAUGE: Lazy<IntGaugeVec> = Lazy::new(|| {
+    IntGaugeVec::new(
+        opts!("bikes_snapshot", "Snapshot of bikes from feeds"),
+        &["version"],
+    )
+    .expect("could not create BIKE_GAUGE")
+});
 
 #[get("/data")]
 fn get_data() -> RawJson<String> {
@@ -29,7 +43,9 @@ fn get_data() -> RawJson<String> {
             vec![Key::new("phase1").string("get bikes from yaml file")],
         );
         let bikes = bikes::get_bikes();
-        span.set_attribute(Key::new("bike_count").i64(bikes.bikes.len().try_into().unwrap()));
+        let num_of_bikes = bikes.bikes.len().try_into().unwrap();
+        span.set_attribute(Key::new("bike_count").i64(num_of_bikes));
+        BIKE_GAUGE.with_label_values(&["1.0"]).add(num_of_bikes);
 
         span.add_event(
             "event2",
@@ -59,7 +75,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>
         Err(error) => println!("could not configiure logging, because of {}", error),
     }
 
+    let prometheus = PrometheusMetrics::new();
+    prometheus
+        .registry()
+        .register(Box::new(BIKE_GAUGE.clone()))
+        .unwrap();
+
     let _rocket = rocket::build()
+        .attach(prometheus.clone())
+        .mount("/metrics", prometheus)
         .mount("/", routes![get_data])
         .mount("/", FileServer::from(relative!("./src/static")))
         .launch()
