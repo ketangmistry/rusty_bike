@@ -1,5 +1,5 @@
 resource "google_cloud_run_service" "rusty_bike" {
-  name     = "rusty_bike"
+  name     = "rusty-bike"
   location = var.region
 
   template {
