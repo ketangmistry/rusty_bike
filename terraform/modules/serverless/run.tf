@@ -5,10 +5,14 @@ resource "google_cloud_run_service" "rusty_bike" {
   template {
     spec {
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:b7ff96b"
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:2b3649f"
         env {
           name = "ROCKET_PORT"
           value = 8000
+        }
+        env {
+          name = "BIKES_YAML_FILE"
+          value = "/app/bikes.yaml"
         }
         ports {
           container_port = 8000
