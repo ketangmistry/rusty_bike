@@ -48,6 +48,7 @@ mod tests {
 
     #[test]
     fn test_get_bikes() {
+        env::set_var("BIKES_YAML_FILE", "./src/feeds/bikes.yaml");
         let bike_list = get_bikes();
         assert!(bike_list.bikes.len() > 0);
         assert!(bike_list.bikes[0].bike.month > 0);

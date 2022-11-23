@@ -1,5 +1,5 @@
 name: artefact-build-and-image-upload
-on: [push]
+on: workflow_dispatch
 
 env:
   GOOGLE_APPLICATION_CREDENTIALS: '${{ secrets.GCP_CREDENTIALS }}'

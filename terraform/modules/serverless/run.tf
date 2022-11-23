@@ -5,13 +5,13 @@ resource "google_cloud_run_service" "rusty_bike" {
   template {
     spec {
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:ffc13ea"
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:${var.container_tag}"
         env {
-          name = "ROCKET_ADDRESS"
+          name  = "ROCKET_ADDRESS"
           value = "0.0.0.0"
         }
         env {
-          name = "BIKES_YAML_FILE"
+          name  = "BIKES_YAML_FILE"
           value = "/app/src/feeds/bikes.yaml"
         }
         ports {
@@ -31,8 +31,8 @@ resource "google_cloud_run_service" "rusty_bike" {
 resource "google_cloud_run_service_iam_binding" "rusty_bike" {
   location = google_cloud_run_service.rusty_bike.location
   service  = google_cloud_run_service.rusty_bike.name
-  
-  role     = "roles/run.invoker"
+
+  role = "roles/run.invoker"
 
   members = [
     "allUsers"

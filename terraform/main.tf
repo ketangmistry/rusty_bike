@@ -4,7 +4,7 @@ provider "google" {
 }
 
 module "serverless" {
-  source         = "./modules/serverless"
-  project_id     = var.project_id
-  region         = var.region
+  source     = "./modules/serverless"
+  project_id = var.project_id
+  region     = var.region
 }
