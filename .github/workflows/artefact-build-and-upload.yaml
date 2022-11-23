@@ -1,11 +1,5 @@
 name: artefact-build-and-image-upload
-on:
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Build scenario tags'
-        required: true 
-        type: string
+on: workflow_dispatch
 
 env:
   GOOGLE_APPLICATION_CREDENTIALS: '${{ secrets.GCP_CREDENTIALS }}'

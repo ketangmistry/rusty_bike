@@ -1,4 +1,4 @@
-use std::{fs::File, path::PathBuf, env};
+use std::{env, fs::File, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -32,7 +32,7 @@ pub struct Problem {
 pub fn get_bikes() -> Bikes {
     let yaml_file_path = match env::var("BIKES_YAML_FILE") {
         Ok(value) => PathBuf::from(value),
-        Err(_) => PathBuf::from("./src/feeds/bikes.yaml")
+        Err(_) => PathBuf::from("./src/feeds/bikes.yaml"),
     };
 
     log::info!("bikes yaml file set to {:?}", yaml_file_path.as_os_str());
