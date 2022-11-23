@@ -12,7 +12,7 @@ resource "google_cloud_run_service" "rusty_bike" {
         }
         env {
           name = "BIKES_YAML_FILE"
-          value = "/app/bikes.yaml"
+          value = "/app/src/feeds/bikes.yaml"
         }
         ports {
           container_port = 8000
