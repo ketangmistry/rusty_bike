@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+use std::env;
+
 use rocket::fs::{relative, FileServer};
 use rocket::response::content::RawJson;
 
@@ -67,12 +69,15 @@ fn get_data() -> RawJson<String> {
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
     let _tracer = tracing::init_tracer()?;
 
-    match logging::init_logger() {
-        Ok(config) => {
-            println!("successfully configured logging");
-            log4rs::init_config(config)?;
-        }
-        Err(error) => println!("could not configiure logging, because of {}", error),
+    match env::var("LOG_TO_FILE") {
+        Ok(_) => match logging::init_logger() {
+            Ok(config) => {
+                println!("successfully configured logging");
+                log4rs::init_config(config)?;
+            }
+            Err(error) => println!("could not configiure logging, because of {}", error),
+        },
+        Err(_) => println!("LOG_TO_FILE not set so logging to stdout"),
     }
 
     let prometheus = PrometheusMetrics::new();
