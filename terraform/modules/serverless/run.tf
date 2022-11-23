@@ -5,10 +5,10 @@ resource "google_cloud_run_service" "rusty_bike" {
   template {
     spec {
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:2b3649f"
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:ffc13ea"
         env {
-          name = "ROCKET_PORT"
-          value = 8000
+          name = "ROCKET_ADDRESS"
+          value = "0.0.0.0"
         }
         env {
           name = "BIKES_YAML_FILE"
