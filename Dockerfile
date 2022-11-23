@@ -1,11 +1,12 @@
-FROM rust:1.65.0
-
-WORKDIR /usr/src/app
-
+FROM rust:1.65.0 AS builder
+WORKDIR /build
 COPY . .
+RUN cargo build --release
 
-RUN cargo install --path /usr/src/app
-
+FROM alpine:latest  
+RUN apk --no-cache add ca-certificates
+WORKDIR /app
+COPY --from=builder /build/target/release/rusty_bike .
+COPY --from=builder /build/src/feeds/bikes.yaml .
 ENV PORT 8000
-
-CMD ["rusty_bike"]
+CMD ["./rusty_bike"]
