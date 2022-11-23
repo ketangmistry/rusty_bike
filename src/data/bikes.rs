@@ -1,4 +1,4 @@
-use std::{fs::File, path::PathBuf};
+use std::{env, fs::File, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -30,7 +30,13 @@ pub struct Problem {
 }
 
 pub fn get_bikes() -> Bikes {
-    let yaml_file_path = PathBuf::from("./src/feeds/bikes.yaml");
+    let yaml_file_path = match env::var("BIKES_YAML_FILE") {
+        Ok(value) => PathBuf::from(value),
+        Err(_) => PathBuf::from("./src/feeds/bikes.yaml"),
+    };
+
+    log::info!("bikes yaml file set to {:?}", yaml_file_path.as_os_str());
+
     let yaml_file = File::open(yaml_file_path).expect("the file bikes.yaml could not be found!");
     let bike_list: Bikes = serde_yaml::from_reader(yaml_file).expect("Could not read values.");
     bike_list
@@ -42,6 +48,7 @@ mod tests {
 
     #[test]
     fn test_get_bikes() {
+        env::set_var("BIKES_YAML_FILE", "./src/feeds/bikes.yaml");
         let bike_list = get_bikes();
         assert!(bike_list.bikes.len() > 0);
         assert!(bike_list.bikes[0].bike.month > 0);
