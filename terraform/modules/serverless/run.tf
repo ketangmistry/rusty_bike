@@ -5,7 +5,7 @@ resource "google_cloud_run_service" "rusty_bike" {
   template {
     spec {
       containers {
-        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:8433b46"
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/containers/rusty_bike:b7ff96b"
         env {
           name = "ROCKET_PORT"
           value = 8000
