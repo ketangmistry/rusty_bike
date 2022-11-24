@@ -16,5 +16,5 @@ variable "region" {
 variable "container_tag" {
   type        = string
   description = "GCP Artefact Registry Container Tag"
-  default     = "83eb945"
+  default     = "10beb20"
 }
