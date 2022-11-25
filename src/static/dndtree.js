@@ -45,7 +45,7 @@ treeJSON = d3.json("data", function(error, treeData) {
 
     // size of the diagram
     var viewerWidth = $(document).width();
-    var viewerHeight = $(document).height();
+    var viewerHeight = "500";
 
     var tree = d3.layout.tree()
         .size([viewerHeight, viewerWidth]);
@@ -430,6 +430,9 @@ treeJSON = d3.json("data", function(error, treeData) {
             .attr('class', 'nodeText')
             .attr("text-anchor", function(d) {
                 return d.children || d._children ? "end" : "start";
+            })
+            .attr('onmouseover', function(d) {
+                return 'displayBikeDetails("' + d.name + '");';
             })
             .text(function(d) {
                 return d.name;

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style type="text/css">
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+  }
   
 	.node {
     cursor: pointer;
@@ -12,7 +16,6 @@
    
   .node circle {
     fill: #fff;
-    stroke: steelblue;
     stroke-width: 1.5px;
   }
    
@@ -45,7 +48,20 @@
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="dndtree.js"></script>
+<script src="bikes.js"></script>
 <body>
+    <div id="page-header-box">
+      <h1>Rusty Bike(s)</h1>
+      <span>
+        Welcome to this site. It's still very much work-in-progress but with hopefully a regular cadence of incremental changes.
+        The source code is on GitHub, <a target="_blank" href="https://github.com/ketangmistry/rusty_bike">here</a>.
+      </span>
+    </div>
     <div id="tree-container"></div>
+    <div id="bike-details-box" height="200px">
+      <span id="bike-details">
+        Hover over a node of the tree to see some additional info here...
+      </span>
+    </div>
 </body>
 </html>
