@@ -46,7 +46,7 @@ impl ChildData {
         ChildData {
             name,
             size,
-            resolved
+            resolved,
         }
     }
 }
@@ -54,7 +54,6 @@ impl ChildData {
 /// From a list of bikes, get an object which can be deserialized into JSON which supports the
 /// D3 Collapsible Tree (https://observablehq.com/@d3/collapsible-tree).
 pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
-
     let tracer = global::tracer("rusty_bike_data_service");
 
     // the root name will be fixed
@@ -70,20 +69,18 @@ pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
             for bike in &bikes.bikes {
                 if !bike.bike.problems.is_empty() {
                     for problem in &bike.bike.problems {
-
                         // set the parent name as component
                         match root.get_manufacturer_by_name(&bike.bike.manufacturer) {
                             Some(parent) => {
                                 match parent.get_model_by_name(&bike.bike.model) {
                                     Some(child) => {
-
                                         // add to existing model
                                         let child_data = ChildData::new(
-                                            problem.description.clone(), 
-                                            1234, 
-                                            problem.resolved);
+                                            problem.description.clone(),
+                                            1234,
+                                            problem.resolved,
+                                        );
                                         child.children.push(child_data);
-
                                     }
                                     None => {
                                         // create new model
@@ -100,9 +97,10 @@ pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
                                         );
 
                                         let child_data = ChildData::new(
-                                            problem.description.clone(), 
-                                            1234, 
-                                            problem.resolved);
+                                            problem.description.clone(),
+                                            1234,
+                                            problem.resolved,
+                                        );
                                         child.children.push(child_data);
 
                                         parent.children.push(child);
@@ -123,9 +121,10 @@ pub fn get_d3_root_from_bikes(bikes: &Bikes) -> Root {
 
                                 // now add a child to child, or grandchild with description
                                 let child_data = ChildData::new(
-                                    problem.description.clone(), 
-                                    1234, 
-                                    problem.resolved);
+                                    problem.description.clone(),
+                                    1234,
+                                    problem.resolved,
+                                );
 
                                 // set the relationships
                                 child.children.push(child_data);
